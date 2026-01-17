@@ -20,20 +20,21 @@ def fetch_activity():
         for item in items:
             author = item['user']['login']
             if author in EXCLUDED_USERS or "[bot]" in author.lower(): continue
-            if author not in stats: stats[author] = {"author": author, "open_prs": 0, "merged_prs": 0, "issues": 0}
+            if author not in stats: stats[author] = {"author": author, "open_prs": 0, "merged_prs": 0, "open_issues": 0}
             
             if "pull_request" in item:
                 if item.get('pull_request', {}).get('merged_at'): stats[author]["merged_prs"] += 1
                 elif item['state'] == "open": stats[author]["open_prs"] += 1
             else:
-                stats[author]["issues"] += 1
+                if item['state'] == "open": stats[author]["open_issues"] += 1
         if 'next' not in resp.links: break
         params['page'] += 1
-        
-    final_list = sorted(stats.values(), key=lambda x: (-x["merged_prs"], -x["open_prs"], -x["issues"], x["author"].lower()))
+    
+    final_list = sorted(stats.values(), key=lambda x: (-(x["open_prs"] + x["merged_prs"] + x["open_issues"]), -x["merged_prs"], -x["open_prs"], -x["open_issues"], x["author"].lower()))
     with open('data.json', 'w') as f:
         json.dump(final_list, f)
 
 if __name__ == "__main__":
 
     fetch_activity()
+
