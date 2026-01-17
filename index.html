@@ -4,49 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RocketChat Contributor Leaderboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
-<body class="bg-gray-900 text-white p-8">
+<body class="bg-gray-900 text-white p-4 md:p-8">
     <div class="max-w-5xl mx-auto">
-        <h1 class="text-4xl font-bold mb-2 text-blue-400 text-center">RocketChat Leaderboard</h1>
-        <p class="text-gray-400 text-center mb-8">Activity since 2025-12-01</p>
+        <h1 class="text-3xl md:text-4xl font-bold mb-2 text-blue-400 text-center">RocketChat Leaderboard</h1>
+        <p id="last-updated" class="text-gray-400 text-center mb-8 text-sm">Activity since 2025-12-01</p>
         
-        <div class="overflow-hidden rounded-lg border border-gray-700 shadow-lg">
-            <table class="w-full text-left">
-                <thead class="bg-gray-800 text-gray-300 uppercase text-sm">
+        <div class="overflow-x-auto rounded-lg border border-gray-700 shadow-lg">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-800 text-gray-300 uppercase text-xs md:text-sm">
                     <tr>
-                        <th class="px-6 py-4">Rank</th>
-                        <th class="px-6 py-4">Contributor</th>
-                        <th class="px-6 py-4 text-center">Open PRs</th>
-                        <th class="px-6 py-4 text-center">Merged PRs</th>
-                        <th class="px-6 py-4 text-center">Issues</th>
+                        <th class="px-4 py-4">Rank</th>
+                        <th class="px-4 py-4">Contributor</th>
+                        <th class="px-4 py-4 text-center">Open PRs</th>
+                        <th class="px-4 py-4 text-center">Merged PRs</th>
+                        <th class="px-4 py-4 text-center">Issues</th>
                     </tr>
                 </thead>
                 <tbody id="leaderboard-body" class="divide-y divide-gray-800 bg-gray-900">
-                    </tbody>
+                    <tr>
+                        <td colspan="5" class="px-6 py-10 text-center text-gray-500">Loading data from GitHub...</td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        fetch('data.json')
-            .then(response => response.json())
-            .then(data => {
-                const body = document.getElementById('leaderboard-body');
+        // Ensure we handle the path correctly for GitHub Pages sub-directories
+        async function loadData() {
+            const body = document.getElementById('leaderboard-body');
+            try {
+                const response = await fetch('./data.json');
+                if (!response.ok) throw new Error('Data not found');
+                const data = await response.json();
+                
+                body.innerHTML = ''; // Clear loading message
+                
                 data.forEach((user, index) => {
                     const row = `
                         <tr class="hover:bg-gray-800 transition-colors">
-                            <td class="px-6 py-4 font-mono text-gray-500">#${index + 1}</td>
-                            <td class="px-6 py-4 font-medium">
-                                <a href="https://github.com/${user.author}" class="text-blue-400 hover:underline">@${user.author}</a>
+                            <td class="px-4 py-4 font-mono text-gray-500">#${index + 1}</td>
+                            <td class="px-4 py-4 font-medium">
+                                <a href="https://github.com/${user.author}" target="_blank" class="text-blue-400 hover:underline">@${user.author}</a>
                             </td>
-                            <td class="px-6 py-4 text-center text-yellow-400">${user.open_prs}</td>
-                            <td class="px-6 py-4 text-center text-green-400">${user.merged_prs}</td>
-                            <td class="px-6 py-4 text-center text-purple-400">${user.issues}</td>
+                            <td class="px-4 py-4 text-center text-yellow-400">${user.open_prs}</td>
+                            <td class="px-4 py-4 text-center text-green-400">${user.merged_prs}</td>
+                            <td class="px-4 py-4 text-center text-purple-400">${user.issues}</td>
                         </tr>`;
                     body.innerHTML += row;
                 });
-            });
+            } catch (error) {
+                body.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-red-400">Error: data.json not found. Please wait for the GitHub Action to run.</td></tr>`;
+            }
+        }
+        loadData();
     </script>
 </body>
 </html>
