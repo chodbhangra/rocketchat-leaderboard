@@ -15,7 +15,7 @@ EXCLUDED_USERS = {
     "rachana-visavadiya", "geekgonecrazy", "Dnouv", "nazabucciarelli", 
     "lingohub", "jonasflorencio", "jessicaschelly", "github-actions", 
     "dhairyashiil", "cubic-dev-ai", "abhinavkrin", "dhulke", "gabrielpetry", 
-    "yasnagat", "vampire-yuta", "[bot]"
+    "yasnagat", "vampire-yuta", "debdutdeb", "[bot]"
 }
 
 def fetch_activity():
@@ -69,4 +69,5 @@ def fetch_activity():
 
 if __name__ == "__main__":
     fetch_activity()
+
 
